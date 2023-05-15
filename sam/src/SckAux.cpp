@@ -1803,44 +1803,135 @@ bool PMsensor::update()
 
 bool PM_DallasTemp::start()
 {
-	if (!I2Cdetect(&auxWire, deviceAddress)) return false;
+	//if (!I2Cdetect(&auxWire, deviceAddress)) return false;
 
-	auxWire.beginTransmission(deviceAddress);
-	auxWire.write(DALLASTEMP_START);
-	auxWire.endTransmission();
-	auxWire.requestFrom(deviceAddress, 1);
+	//auxWire.beginTransmission(deviceAddress);
+	//auxWire.write(DALLASTEMP_START);
+	//auxWire.endTransmission();
+	//auxWire.requestFrom(deviceAddress, 1);
 
-	bool result = auxWire.read();
-	return result;
+	//bool result = auxWire.read();
+	//return result;
+	
+	bool resultA = false;
+	bool resultB = false;
+	bool addressA = I2Cdetect(&auxWire, deviceAddressA);
+	bool addressB = I2Cdetect(&auxWire, deviceAddressB);	
+	if (!addressA && !addressB) return false;
+
+	if (addressA){
+		auxWire.beginTransmission(deviceAddressA);
+		auxWire.write(DALLASTEMP_START);
+		auxWire.endTransmission();
+		auxWire.requestFrom(deviceAddressA, 1);
+		resultA = auxWire.read();
+	}
+	
+	if (addressB)
+	{
+		auxWire.beginTransmission(deviceAddressB);
+		auxWire.write(DALLASTEMP_START);
+		auxWire.endTransmission();
+		auxWire.requestFrom(deviceAddressB, 1);
+		resultB = auxWire.read();
+	}	
+	
+	return (resultA + resultB > 0) ? true : false;
 }
 
 bool PM_DallasTemp::stop()
 {
-	if (!I2Cdetect(&auxWire, deviceAddress)) return false;
+	//if (!I2Cdetect(&auxWire, deviceAddress)) return false;
 
-	auxWire.beginTransmission(deviceAddress);
-	auxWire.write(DALLASTEMP_STOP);
-	auxWire.endTransmission();
-	auxWire.requestFrom(deviceAddress, 1);
+	//auxWire.beginTransmission(deviceAddress);
+	//auxWire.write(DALLASTEMP_STOP);
+	//auxWire.endTransmission();
+	//auxWire.requestFrom(deviceAddress, 1);
 
-	bool result = auxWire.read();
-	return result;
+	//bool result = auxWire.read();
+	//return result;
+	
+	bool resultA = false;
+	bool resultB = false;
+	bool addressA = I2Cdetect(&auxWire, deviceAddressA);
+	bool addressB = I2Cdetect(&auxWire, deviceAddressB);	
+	if (!addressA && !addressB) return false;
+
+	if (addressA){
+		auxWire.beginTransmission(deviceAddressA);
+		auxWire.write(DALLASTEMP_STOP);
+		auxWire.endTransmission();
+		auxWire.requestFrom(deviceAddressA, 1);
+		resultA = auxWire.read();
+	}
+	
+	if (addressB)
+	{
+		auxWire.beginTransmission(deviceAddressB);
+		auxWire.write(DALLASTEMP_STOP);
+		auxWire.endTransmission();
+		auxWire.requestFrom(deviceAddressB, 1);
+		resultB = auxWire.read();
+	}	
+	
+	return (resultA + resultB > 0) ? true : false;
 }
 
 float PM_DallasTemp::getReading()
 {
-	if (!I2Cdetect(&auxWire, deviceAddress)) return false;
+	//if (!I2Cdetect(&auxWire, deviceAddress)) return false;
 
-	auxWire.beginTransmission(deviceAddress);
-	auxWire.write(GET_DALLASTEMP);
-	auxWire.endTransmission();
+	//auxWire.beginTransmission(deviceAddress);
+	//auxWire.write(GET_DALLASTEMP);
+	//auxWire.endTransmission();
 
 	// Get the reading
-	auxWire.requestFrom(deviceAddress, 4);
-	uint32_t start = millis();
-	while (!auxWire.available()) if ((millis() - start)>500) return -9999;
-	for (uint8_t i=0; i<4; i++) uRead.b[i] = auxWire.read();
-	return uRead.fval;
+	//auxWire.requestFrom(deviceAddress, 4);
+	//uint32_t start = millis();
+	//while (!auxWire.available()) if ((millis() - start)>500) return -9999;
+	//for (uint8_t i=0; i<4; i++) uRead.b[i] = auxWire.read();
+	//return uRead.fval;
+	
+	float resultA = -9999;
+	float resultB = -9999;
+	bool addressA = I2Cdetect(&auxWire, deviceAddressA);
+	bool addressB = I2Cdetect(&auxWire, deviceAddressB);	
+	if (!addressA && !addressB) return false;
+	
+	if (addressA){
+		auxWire.beginTransmission(deviceAddressA);
+		auxWire.write(GET_DALLASTEMP);
+		auxWire.endTransmission();
+		auxWire.requestFrom(deviceAddressA, 4);
+		uint32_t start = millis();
+		while (!auxWire.available()){
+			if ((millis() - start)>500){
+				resultA = -9999; 
+				break;
+			}
+			for (uint8_t i=0; i<4; i++) uRead.b[i] = auxWire.read();
+			resultA = uRead.fval;
+		}  
+	}
+	
+	if (addressB)
+	{
+		auxWire.beginTransmission(deviceAddressB);
+		auxWire.write(GET_DALLASTEMP);
+		auxWire.endTransmission();
+		auxWire.requestFrom(deviceAddressB, 4);
+		uint32_t start = millis();
+		while (!auxWire.available()){
+			if ((millis() - start)>500){
+				resultB = -9999; 
+				break;
+			}
+			for (uint8_t i=0; i<4; i++) uRead.b[i] = auxWire.read();
+			resultB = uRead.fval;
+		} 
+	}	
+	
+	return resultA*100 - resultB/100;
 }
 
 TinyGPSPlus tinyGps;

@@ -154,7 +154,8 @@ class AuxBoards
 			0x02,			// SENSOR_EXT_B_PN_5,
 			0x02,			// SENSOR_EXT_B_PN_10,
 
-			0x02,			// SENSOR_PM_DALLAS_TEMP,
+			0x02,			// SENSOR_PM_DALLAS_TEMP (A),
+			0x03,			// SENSOR_PM_DALLAS_TEMP (B),
 			0x00,			// SENSOR_DALLAS_TEMP, 		-- 2 wire (no I2C address)
 
 			0x44,			// SENSOR_SHT31_TEMP,
@@ -494,13 +495,15 @@ class PMsensor
 class PM_DallasTemp
 {
 	public:
-		const byte deviceAddress = 0x02;
+		// const byte deviceAddress = 0x02;
+		const byte deviceAddressA = 0x02;
+		const byte deviceAddressB = 0x03;
 		bool start();
 		bool stop();
 		float getReading();
 	private:
 		union u_reading {
-			byte b[4];
+			byte b[8];
 			float fval;
 		} uRead;
 
