@@ -9,7 +9,7 @@
 #include <Adafruit_MPL3115A2.h>
 #include "SckSoundTables.h"
 #include <I2S.h>
-#include <SparkFunCCS811.h>
+// #include <SparkFunCCS811.h>
 
 
 // Firmware for SmartCitizen Kit - Urban Sensor Board SCK 2.0
@@ -237,44 +237,44 @@ class Sck_PM
 };
 
 // VOC ans ECO2 - CCS811
-class Sck_CCS811
-{
-	// Datasheet https://ams.com/documents/20143/36005/CCS811_DS000459_7-00.pdf/3cfdaea5-b602-fe28-1a14-18776b61a35a
-	// TODO review  the utility of baseline on datasheet and implement control interface if needed
-	// TODO check consumption and quality in different drive modes: 1 sec [default], 10 sec, 60 sec or 0.25 sec (RAW mode)
+// class Sck_CCS811
+// {
+// 	// Datasheet https://ams.com/documents/20143/36005/CCS811_DS000459_7-00.pdf/3cfdaea5-b602-fe28-1a14-18776b61a35a
+// 	// TODO review  the utility of baseline on datasheet and implement control interface if needed
+// 	// TODO check consumption and quality in different drive modes: 1 sec [default], 10 sec, 60 sec or 0.25 sec (RAW mode)
 
-	public:
-		Sck_CCS811(RTCZero* myrtc) {
-			rtc = myrtc;
-		}
+// 	public:
+// 		Sck_CCS811(RTCZero* myrtc) {
+// 			rtc = myrtc;
+// 		}
 
-		const byte address = 0x5a;
-		bool start();
-		bool stop();
-		bool getReading(SckBase *base);
-		uint16_t getBaseline();
-		bool setBaseline(uint16_t wichBaseline);
-		bool setDriveMode(uint8_t wichDrivemode);
+// 		const byte address = 0x5a;
+// 		bool start();
+// 		bool stop();
+// 		bool getReading(SckBase *base);
+// 		uint16_t getBaseline();
+// 		bool setBaseline(uint16_t wichBaseline);
+// 		bool setDriveMode(uint8_t wichDrivemode);
 
-		//Mode 0 = Idle
-		//Mode 1 = read every 1s
-		//Mode 2 = every 10s
-		//Mode 3 = every 60s
-		//Mode 4 = RAW mode
-		uint8_t driveMode = 3;
+// 		//Mode 0 = Idle
+// 		//Mode 1 = read every 1s
+// 		//Mode 2 = every 10s
+// 		//Mode 3 = every 60s
+// 		//Mode 4 = RAW mode
+// 		uint8_t driveMode = 3;
 
-		bool debug = false;
-		bool compensate = true; 	// Compensation is for both sensors or none
-		float VOCgas;
-		float ECO2gas;
-	private:
-		uint32_t startTime = 0;
-		uint32_t lastReadingMill = 0;
-		const uint32_t warmingTime = 300; 	// Minimal time for sensor stabilization in seconds(the kit will not return readings during this period) 5 minutes as default
-		bool alreadyStarted = false;
-		CCS811 ccs = CCS811(address);
-		RTCZero* rtc;
-};
+// 		bool debug = false;
+// 		bool compensate = true; 	// Compensation is for both sensors or none
+// 		float VOCgas;
+// 		float ECO2gas;
+// 	private:
+// 		uint32_t startTime = 0;
+// 		uint32_t lastReadingMill = 0;
+// 		const uint32_t warmingTime = 300; 	// Minimal time for sensor stabilization in seconds(the kit will not return readings during this period) 5 minutes as default
+// 		bool alreadyStarted = false;
+// 		CCS811 ccs = CCS811(address);
+// 		RTCZero* rtc;
+// };
 
 
 class SckUrban
@@ -307,7 +307,7 @@ class SckUrban
 		Sck_MPL3115A2 sck_mpl3115A2;
 
 		// VOC and ECO2
-		Sck_CCS811 sck_ccs811 = Sck_CCS811(rtc);
+		// Sck_CCS811 sck_ccs811 = Sck_CCS811(rtc);
 
 		// PM sensor
 		Sck_PM sck_pm = Sck_PM(rtc);

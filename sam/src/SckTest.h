@@ -24,7 +24,7 @@ class SckTest
 		uint8_t test_SHT();
 		uint8_t test_Light();
 		uint8_t test_Pressure();
-		uint8_t test_VOC();
+		// uint8_t test_VOC();
 		uint8_t test_Noise();
 		uint8_t test_PM();
 		uint8_t test_auxWire();
@@ -45,8 +45,8 @@ class SckTest
 			TEST_HUM, 			// 6 percent
 			TEST_LIGHT, 			// 7 Lux
 			TEST_PRESS, 			// 8 kPa
-			TEST_VOCS, 			// 9 ppb
-			TEST_ECO2, 			// 10 ppm
+			// TEST_VOCS, 			// 9 ppb
+			// TEST_ECO2, 			// 10 ppm
 			TEST_NOISE, 			// 11 dbA
 			TEST_PM_1, 			// 12 ug/m3
 			TEST_PM_25, 			// 13 ug/m3

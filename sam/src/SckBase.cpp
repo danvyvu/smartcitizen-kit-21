@@ -662,11 +662,11 @@ void SckBase::loadConfig()
 	hostname[16] = '\0';
 
 	// CSS vocs sensor baseline loading
-	if (config.extra.ccsBaselineValid && I2Cdetect(&Wire, urban.sck_ccs811.address)) {
-		sprintf(outBuff, "Updating CCS sensor baseline: %u", config.extra.ccsBaseline);
-		sckOut();
-		urban.sck_ccs811.setBaseline(config.extra.ccsBaseline);
-	}
+	// if (config.extra.ccsBaselineValid && I2Cdetect(&Wire, urban.sck_ccs811.address)) {
+	// 	sprintf(outBuff, "Updating CCS sensor baseline: %u", config.extra.ccsBaseline);
+	// 	sckOut();
+	// 	urban.sck_ccs811.setBaseline(config.extra.ccsBaseline);
+	// }
 
 	// PMS sensor warmUpperiod and powerSave config
 	urban.sck_pm.warmUpPeriod = config.extra.pmWarmUpPeriod;
@@ -1269,16 +1269,16 @@ bool SckBase::saveInfo()
 void SckBase::sck_reset()
 {
 	// Save updated CCS sensor baseline
-	if (I2Cdetect(&Wire, urban.sck_ccs811.address)) {
-		uint16_t savedBaseLine = urban.sck_ccs811.getBaseline();
-		if (savedBaseLine != 0)	{
-			sprintf(outBuff, "Saved CCS baseline on eeprom: %u", savedBaseLine);
-			sckOut();
-			config.extra.ccsBaseline = savedBaseLine;
-			config.extra.ccsBaselineValid = true;
-			eepromConfig.write(config);
-		}
-	}
+	// if (I2Cdetect(&Wire, urban.sck_ccs811.address)) {
+	// 	uint16_t savedBaseLine = urban.sck_ccs811.getBaseline();
+	// 	if (savedBaseLine != 0)	{
+	// 		sprintf(outBuff, "Saved CCS baseline on eeprom: %u", savedBaseLine);
+	// 		sckOut();
+	// 		config.extra.ccsBaseline = savedBaseLine;
+	// 		config.extra.ccsBaselineValid = true;
+	// 		eepromConfig.write(config);
+	// 	}
+	// }
 
 	sckOut("Bye!!");
 	NVIC_SystemReset();
@@ -1300,7 +1300,7 @@ void SckBase::goToSleep(uint32_t sleepPeriod)
 		sckOut();
 
 		// Stop CCS811 VOCS sensor
-		urban.stop(SENSOR_CCS811_VOCS);
+		// urban.stop(SENSOR_CCS811_VOCS);
 
 		// Detach sdcard interrupt to avoid spurious wakeup
 		// There is no need to reattach since after this sleep there is always a reset
