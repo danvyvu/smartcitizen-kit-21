@@ -12,7 +12,7 @@ bool SckUrban::present()
 	if (sck_bh1730fvc.start()) return true;
 	if (sck_sht31.start()) return true;
 	if (sck_mpl3115A2.start()) return true;
-	// if (sck_ccs811.start()) return true;
+	if (sck_ccs811.start()) return true;
 	if (sck_pm.start()) return true;
 
 	return false;
@@ -30,8 +30,8 @@ bool SckUrban::start(SensorType wichSensor)
 		case SENSOR_ALTITUDE:
 		case SENSOR_PRESSURE:
 		case SENSOR_PRESSURE_TEMP: 			if (sck_mpl3115A2.start()) return true; break;
-		// case SENSOR_CCS811_VOCS:			return sck_ccs811.start(); break;
-		// case SENSOR_CCS811_ECO2: 			return sck_ccs811.start(); break;
+		case SENSOR_CCS811_VOCS:			return sck_ccs811.start(); break;
+		case SENSOR_CCS811_ECO2: 			return sck_ccs811.start(); break;
 		case SENSOR_PM_1:
 		case SENSOR_PM_25:
 		case SENSOR_PM_10:
@@ -59,8 +59,8 @@ bool SckUrban::stop(SensorType wichSensor)
 		case SENSOR_ALTITUDE:
 		case SENSOR_PRESSURE:
 		case SENSOR_PRESSURE_TEMP: 			if (sck_mpl3115A2.stop()) return true; break;
-		// case SENSOR_CCS811_VOCS:			return sck_ccs811.stop(); break;
-		// case SENSOR_CCS811_ECO2: 			return sck_ccs811.stop(); break;
+		case SENSOR_CCS811_VOCS:			return sck_ccs811.stop(); break;
+		case SENSOR_CCS811_ECO2: 			return sck_ccs811.stop(); break;
 		case SENSOR_PM_1:
 		case SENSOR_PM_25:
 		case SENSOR_PM_10:
@@ -92,8 +92,8 @@ void SckUrban::getReading(SckBase *base, OneSensor *wichSensor)
 								for (uint16_t i=1; i<sck_noise.FFT_NUM; i++) SerialUSB.println(sck_noise.readingFFT[i]);
 								return;
 							}
-		// case SENSOR_CCS811_VOCS:		if (sck_ccs811.getReading(base)) 		{ wichSensor->reading = String(sck_ccs811.VOCgas); return; } break;
-		// case SENSOR_CCS811_ECO2:		if (sck_ccs811.getReading(base)) 		{ wichSensor->reading = String(sck_ccs811.ECO2gas); return; } break;
+		case SENSOR_CCS811_VOCS:		if (sck_ccs811.getReading(base)) 		{ wichSensor->reading = String(sck_ccs811.VOCgas); return; } break;
+		case SENSOR_CCS811_ECO2:		if (sck_ccs811.getReading(base)) 		{ wichSensor->reading = String(sck_ccs811.ECO2gas); return; } break;
 		case SENSOR_ALTITUDE:			if (sck_mpl3115A2.getAltitude()) 		{ wichSensor->reading = String(sck_mpl3115A2.altitude); return; } break;
 		case SENSOR_PRESSURE:			if (sck_mpl3115A2.getPressure()) 		{ wichSensor->reading = String(sck_mpl3115A2.pressure); return; } break;
 		case SENSOR_PRESSURE_TEMP:		if (sck_mpl3115A2.getTemperature()) 		{ wichSensor->reading = String(sck_mpl3115A2.temperature); return; } break;
@@ -126,45 +126,44 @@ bool SckUrban::control(SckBase *base, SensorType wichSensor, String command)
 					base->sckOut();
 					return true;
 				}
-		} 
-		// case SENSOR_CCS811_VOCS:
-		// case SENSOR_CCS811_ECO2:
-		// {
-		// 		if (command.startsWith("compensate")) {
+		} case SENSOR_CCS811_VOCS:
+		case SENSOR_CCS811_ECO2:
+		{
+				if (command.startsWith("compensate")) {
 
-		// 			sck_ccs811.compensate = !sck_ccs811.compensate;
-		// 			return (sck_ccs811.compensate ? "True" : "False");
+					sck_ccs811.compensate = !sck_ccs811.compensate;
+					return (sck_ccs811.compensate ? "True" : "False");
 
-		// 		} else if (command.startsWith("mode")) {
+				} else if (command.startsWith("mode")) {
 
-		// 			command.replace("mode", "");
-		// 			command.trim();
+					command.replace("mode", "");
+					command.trim();
 
-		// 			if (command.length() == 0) {
-		// 				sprintf(base->outBuff, "Current drive mode: %u", sck_ccs811.driveMode);
-		// 				base->sckOut();
-		// 				return "\r\n";
-		// 			}
+					if (command.length() == 0) {
+						sprintf(base->outBuff, "Current drive mode: %u", sck_ccs811.driveMode);
+						base->sckOut();
+						return "\r\n";
+					}
 
-		// 			uint8_t newDriveMode = command.toInt();
-		// 			if ((newDriveMode == 0 and !command.equals("0")) || newDriveMode > 4 || newDriveMode < 0) return F("Wrong drive mode value received, try again");
+					uint8_t newDriveMode = command.toInt();
+					if ((newDriveMode == 0 and !command.equals("0")) || newDriveMode > 4 || newDriveMode < 0) return F("Wrong drive mode value received, try again");
 
-		// 			//Mode 0 = Idle
-		// 			//Mode 1 = read every 1s
-		// 			//Mode 2 = every 10s
-		// 			//Mode 3 = every 60s
-		// 			//Mode 4 = RAW mode
-		// 			if (sck_ccs811.setDriveMode(newDriveMode) != CCS811Core::CCS811_Stat_SUCCESS) return F("Failed to set new drive mode");
-		// 			else return String F("Drivemode set to ") + String(sck_ccs811.driveMode);
+					//Mode 0 = Idle
+					//Mode 1 = read every 1s
+					//Mode 2 = every 10s
+					//Mode 3 = every 60s
+					//Mode 4 = RAW mode
+					if (sck_ccs811.setDriveMode(newDriveMode) != CCS811Core::CCS811_Stat_SUCCESS) return F("Failed to set new drive mode");
+					else return String F("Drivemode set to ") + String(sck_ccs811.driveMode);
 
-		// 		} else if (command.startsWith("help") || command.length() == 0) {
+				} else if (command.startsWith("help") || command.length() == 0) {
 
-		// 			sprintf(base->outBuff, "Available commands:\r\n* compensate (toggles temp/hum compensation)\r\n* mode [0-4] (0-idle, 1-1s, 2-10s, 3-60s, 4-raw)");
-		// 			base->sckOut();
-		// 			return "\r\n";
-		// 		}
+					sprintf(base->outBuff, "Available commands:\r\n* compensate (toggles temp/hum compensation)\r\n* mode [0-4] (0-idle, 1-1s, 2-10s, 3-60s, 4-raw)");
+					base->sckOut();
+					return "\r\n";
+				}
 
-		// }
+		}
 		case SENSOR_PM_1:
 		case SENSOR_PM_25:
 		case SENSOR_PM_10:
@@ -1218,111 +1217,111 @@ bool Sck_PM::wake()
 }
 
 // VOC and ECO2
-// bool Sck_CCS811::start()
-// {
-// 	if (alreadyStarted) return true;
+bool Sck_CCS811::start()
+{
+	if (alreadyStarted) return true;
 
-// 	if (!ccs.begin()) return false;
+	if (!ccs.begin()) return false;
 
-// 	if (ccs.setDriveMode(driveMode) != CCS811Core::CCS811_Stat_SUCCESS) return false;
+	if (ccs.setDriveMode(driveMode) != CCS811Core::CCS811_Stat_SUCCESS) return false;
 
-// 	startTime = rtc->getEpoch();
-// 	alreadyStarted = true;
-// 	return true;
-// }
-// bool Sck_CCS811::stop()
-// {
-// 	// If the sensor is not there we don't need to stop it
-// 	if (!I2Cdetect(&Wire, address)) return true;
+	startTime = rtc->getEpoch();
+	alreadyStarted = true;
+	return true;
+}
+bool Sck_CCS811::stop()
+{
+	// If the sensor is not there we don't need to stop it
+	if (!I2Cdetect(&Wire, address)) return true;
 
-// 	if (ccs.setDriveMode(0) != CCS811Core::CCS811_Stat_SUCCESS) return false;
-// 	alreadyStarted = false;
-// 	startTime = 0;
-// 	return true;
-// }
-// bool Sck_CCS811::getReading(SckBase *base)
-// {
-// 	if (!alreadyStarted) start();
-// 	uint32_t rtcNow = rtc->getEpoch();
-// 	if (((startTime == 0) || ((rtcNow - startTime) < warmingTime)) && !base->inTest) {
-// 		if (debug) {
-// 			SerialUSB.println("CCS811: in warming period!!");
-// 			SerialUSB.print("CCS811: Readings will be ready in (sec): ");
-// 			SerialUSB.println(warmingTime - (rtcNow - startTime));
-// 		}
-// 		return false;
-// 	}
-// 	if (millis() - lastReadingMill < 5000) {
-// 		if (debug) SerialUSB.println("CCS811: (not enough time passed)");
-// 		return true; // This prevents getting different updates for ECO2 and VOCS
-// 	}
+	if (ccs.setDriveMode(0) != CCS811Core::CCS811_Stat_SUCCESS) return false;
+	alreadyStarted = false;
+	startTime = 0;
+	return true;
+}
+bool Sck_CCS811::getReading(SckBase *base)
+{
+	if (!alreadyStarted) start();
+	uint32_t rtcNow = rtc->getEpoch();
+	if (((startTime == 0) || ((rtcNow - startTime) < warmingTime)) && !base->inTest) {
+		if (debug) {
+			SerialUSB.println("CCS811: in warming period!!");
+			SerialUSB.print("CCS811: Readings will be ready in (sec): ");
+			SerialUSB.println(warmingTime - (rtcNow - startTime));
+		}
+		return false;
+	}
+	if (millis() - lastReadingMill < 5000) {
+		if (debug) SerialUSB.println("CCS811: (not enough time passed)");
+		return true; // This prevents getting different updates for ECO2 and VOCS
+	}
 
-// 	if (!ccs.dataAvailable()) {
-// 		uint32_t Uinterval = 60000; 	// Interval between sensor update (ms)
-// 		switch (driveMode) {
-// 			case 1: Uinterval = 1000; break;
-// 			case 2: Uinterval = 10000; break;
-// 			case 3: Uinterval = 60000; break;
-// 		}
+	if (!ccs.dataAvailable()) {
+		uint32_t Uinterval = 60000; 	// Interval between sensor update (ms)
+		switch (driveMode) {
+			case 1: Uinterval = 1000; break;
+			case 2: Uinterval = 10000; break;
+			case 3: Uinterval = 60000; break;
+		}
 
-// 		if (debug) {
-// 			SerialUSB.print("CCS811: Drivemode interval (ms): ");
-// 			SerialUSB.println(Uinterval);
-// 		}
+		if (debug) {
+			SerialUSB.print("CCS811: Drivemode interval (ms): ");
+			SerialUSB.println(Uinterval);
+		}
 
-// 		if (millis() - lastReadingMill < Uinterval) {
-// 			if (debug) SerialUSB.println("CCS811: using old readings (not enough time passed)");
-// 			return true;  // We will use last reading because  sensor is not programmed to give us readings so often
-// 		}
-// 		if (debug) SerialUSB.println("CCS811: ERROR obtaining reading!!");
-// 		return false;
-// 	}
+		if (millis() - lastReadingMill < Uinterval) {
+			if (debug) SerialUSB.println("CCS811: using old readings (not enough time passed)");
+			return true;  // We will use last reading because  sensor is not programmed to give us readings so often
+		}
+		if (debug) SerialUSB.println("CCS811: ERROR obtaining reading!!");
+		return false;
+	}
 
-// 	lastReadingMill = millis();
+	lastReadingMill = millis();
 
-// 	ccs.readAlgorithmResults();
+	ccs.readAlgorithmResults();
 
-// 	VOCgas = ccs.getTVOC();
-// 	ECO2gas = ccs.getCO2();
+	VOCgas = ccs.getTVOC();
+	ECO2gas = ccs.getCO2();
 
-// 	if (compensate) {
-// 		if (base->sensors[SENSOR_TEMPERATURE].enabled && base->sensors[SENSOR_HUMIDITY].enabled) {
-// 			base->getReading(&base->sensors[SENSOR_HUMIDITY]);
-// 			base->getReading(&base->sensors[SENSOR_TEMPERATURE]);
-// 			if (base->sensors[SENSOR_HUMIDITY].state == 0 && base->sensors[SENSOR_TEMPERATURE].state == 0) {
-// 				if (debug) SerialUSB.println("CCS811: Compensating readings with temp/hum");
-// 				ccs.setEnvironmentalData(base->sensors[SENSOR_HUMIDITY].reading.toFloat(), base->sensors[SENSOR_TEMPERATURE].reading.toFloat());
-// 			} else {
-// 				if (debug) SerialUSB.println("CCS811: Compensation failed Error obtaining temp/hum readings!!");
-// 			}
-// 		} else {
-// 			if (debug) SerialUSB.println("CCS811: temp/hum compensation failed, some sensors are disabled");
-// 		}
-// 	} else {
-// 		if (debug) SerialUSB.println("CCS811: temp/hum compensation is disabled!");
-// 	}
-// 	return true;
-// }
-// uint16_t Sck_CCS811::getBaseline()
-// {
-// 	if (!alreadyStarted) {
-// 		if (!start()) return false;
-// 	}
-// 	return ccs.getBaseline();
-// }
-// bool Sck_CCS811::setBaseline(uint16_t wichBaseline)
-// {
-// 	if (!alreadyStarted) {
-// 		if (!start()) return false;
-// 	}
+	if (compensate) {
+		if (base->sensors[SENSOR_TEMPERATURE].enabled && base->sensors[SENSOR_HUMIDITY].enabled) {
+			base->getReading(&base->sensors[SENSOR_HUMIDITY]);
+			base->getReading(&base->sensors[SENSOR_TEMPERATURE]);
+			if (base->sensors[SENSOR_HUMIDITY].state == 0 && base->sensors[SENSOR_TEMPERATURE].state == 0) {
+				if (debug) SerialUSB.println("CCS811: Compensating readings with temp/hum");
+				ccs.setEnvironmentalData(base->sensors[SENSOR_HUMIDITY].reading.toFloat(), base->sensors[SENSOR_TEMPERATURE].reading.toFloat());
+			} else {
+				if (debug) SerialUSB.println("CCS811: Compensation failed Error obtaining temp/hum readings!!");
+			}
+		} else {
+			if (debug) SerialUSB.println("CCS811: temp/hum compensation failed, some sensors are disabled");
+		}
+	} else {
+		if (debug) SerialUSB.println("CCS811: temp/hum compensation is disabled!");
+	}
+	return true;
+}
+uint16_t Sck_CCS811::getBaseline()
+{
+	if (!alreadyStarted) {
+		if (!start()) return false;
+	}
+	return ccs.getBaseline();
+}
+bool Sck_CCS811::setBaseline(uint16_t wichBaseline)
+{
+	if (!alreadyStarted) {
+		if (!start()) return false;
+	}
 
-// 	if (ccs.setBaseline(wichBaseline) != ccs.CCS811_Stat_SUCCESS) return false;
+	if (ccs.setBaseline(wichBaseline) != ccs.CCS811_Stat_SUCCESS) return false;
 
-// 	return true;
-// }
-// bool Sck_CCS811::setDriveMode(uint8_t wichDrivemode)
-// {
-// 	driveMode = wichDrivemode;
-// 	if (ccs.setDriveMode(driveMode) != CCS811Core::CCS811_Stat_SUCCESS) return false;
-// 	return true;
-// }
+	return true;
+}
+bool Sck_CCS811::setDriveMode(uint8_t wichDrivemode)
+{
+	driveMode = wichDrivemode;
+	if (ccs.setDriveMode(driveMode) != CCS811Core::CCS811_Stat_SUCCESS) return false;
+	return true;
+}

@@ -12,15 +12,15 @@ void SckTest::test_full()
 	testBase->enableSensor(SENSOR_HUMIDITY);
 	testBase->enableSensor(SENSOR_LIGHT);
 	testBase->enableSensor(SENSOR_PRESSURE);
-	// testBase->enableSensor(SENSOR_CCS811_VOCS);
-	// testBase->enableSensor(SENSOR_CCS811_ECO2);
+	testBase->enableSensor(SENSOR_CCS811_VOCS);
+	testBase->enableSensor(SENSOR_CCS811_ECO2);
 	testBase->enableSensor(SENSOR_NOISE_DBA);
 	testBase->enableSensor(SENSOR_PM_1);
 	testBase->enableSensor(SENSOR_PM_25);
 	testBase->enableSensor(SENSOR_PM_10);
 
-	// // Change CCS811 drive mode to update every second
-	// testBase->urban.sck_ccs811.setDriveMode(1);
+	// Change CCS811 drive mode to update every second
+	testBase->urban.sck_ccs811.setDriveMode(1);
 
 	// Make sure al results are 0
 	for (uint8_t i=0; i<TEST_COUNT; i++) {
@@ -119,13 +119,13 @@ void SckTest::test_full()
 		errors += test_Noise();
 	}
 
-	// // Test Air Quality
-	// if (test_VOC() > 0) {
-	// 	SerialUSB.println("Retrying...");
-	// 	delay(500);
-	// 	title = false;
-	// 	errors += test_VOC();
-	// }
+	// Test Air Quality
+	if (test_VOC() > 0) {
+		SerialUSB.println("Retrying...");
+		delay(500);
+		title = false;
+		errors += test_VOC();
+	}
 
 	// Test PM sensor
 	if (test_PM() > 0) {
@@ -442,26 +442,26 @@ uint8_t SckTest::test_PM()
 	return 0;
 }
 
-// uint8_t SckTest::test_VOC()
-// {
-// 	if (title) SerialUSB.println("\r\nTesting Air Quality sensor...");
+uint8_t SckTest::test_VOC()
+{
+	if (title) SerialUSB.println("\r\nTesting Air Quality sensor...");
 
-// 	if (testBase->urban.sck_ccs811.getReading(testBase)) {
-// 		test_report.tests[TEST_VOCS] = testBase->urban.sck_ccs811.VOCgas;
-// 		test_report.tests[TEST_ECO2] = testBase->urban.sck_ccs811.ECO2gas;
-// 		sprintf(testBase->outBuff, "%s: %.2f %s", testBase->sensors[SENSOR_CCS811_VOCS].title, test_report.tests[TEST_VOCS], testBase->sensors[SENSOR_CCS811_VOCS].unit);
-// 		SerialUSB.println(testBase->outBuff);
-// 		sprintf(testBase->outBuff, "%s: %.2f %s", testBase->sensors[SENSOR_CCS811_ECO2].title, test_report.tests[TEST_ECO2], testBase->sensors[SENSOR_CCS811_ECO2].unit);
-// 		SerialUSB.println(testBase->outBuff);
-// 		SerialUSB.println("Air Quality sensor test finished OK");
-// 	} else {
-// 		SerialUSB.println("ERROR reading Air Quality VOCS-ECO2 sensor");
-// 		return 2;
-// 	}
+	if (testBase->urban.sck_ccs811.getReading(testBase)) {
+		test_report.tests[TEST_VOCS] = testBase->urban.sck_ccs811.VOCgas;
+		test_report.tests[TEST_ECO2] = testBase->urban.sck_ccs811.ECO2gas;
+		sprintf(testBase->outBuff, "%s: %.2f %s", testBase->sensors[SENSOR_CCS811_VOCS].title, test_report.tests[TEST_VOCS], testBase->sensors[SENSOR_CCS811_VOCS].unit);
+		SerialUSB.println(testBase->outBuff);
+		sprintf(testBase->outBuff, "%s: %.2f %s", testBase->sensors[SENSOR_CCS811_ECO2].title, test_report.tests[TEST_ECO2], testBase->sensors[SENSOR_CCS811_ECO2].unit);
+		SerialUSB.println(testBase->outBuff);
+		SerialUSB.println("Air Quality sensor test finished OK");
+	} else {
+		SerialUSB.println("ERROR reading Air Quality VOCS-ECO2 sensor");
+		return 2;
+	}
 
-// 	title = true;
-// 	return 0;
-// }
+	title = true;
+	return 0;
+}
 
 uint8_t SckTest::test_auxWire()
 {
